@@ -41,4 +41,8 @@ net.fit(
 
 "The best way to learn how something works is to make it from scratch" 
 
-                                    -Probably Someone
+<p align="center">
+-Probably Someone
+</p>
+
+
