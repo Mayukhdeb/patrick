@@ -7,7 +7,7 @@ spongebob's best friend
 
 Tiny neural net library written from scratch with [cupy](https://cupy.dev/) backend. Still under construction. 
 
-```
+```python
 from patrick.nn import NN as nn
 from patrick.losses import mse_loss
 from patrick.activations import leaky_relu
