@@ -6,10 +6,10 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 
-import patrick.nn as nn
-import patrick.layers as layers
-import patrick.losses as losses
+from patrick.nn import NN as nn
+from patrick.losses import mse_loss
 from patrick.activations import leaky_relu
+from patrick.layers  import FCLayer as linear
 
 """
 train test split
@@ -36,16 +36,16 @@ y_train = y_train.reshape(y_train.shape[0]//batch_size, batch_size, 10)
 """
 model
 """
-class model(nn.NN):
+class model(nn):
     def __init__(self):
         self.layers =  [
-                    layers.FCLayer(64,150),
+                    linear(64,150),
                     leaky_relu(),
-                    layers.FCLayer(150, 100),
+                    linear(150, 100),
                     leaky_relu(),
-                    layers.FCLayer(100, 52),
+                    linear(100, 52),
                     leaky_relu(),
-                    layers.FCLayer(52,10)
+                    linear(52,10)
                 ]
         
 net = model()
@@ -53,7 +53,7 @@ net = model()
 """
 train
 """
-net.fit(x_train, y_train, epochs=60, learning_rate=0.005, loss = losses.mse_loss)
+net.fit(x_train, y_train, epochs=60, learning_rate=0.005, loss = mse_loss)
 
 """
 test
