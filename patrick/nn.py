@@ -6,8 +6,6 @@ from tqdm import tqdm
 class NN(Layer):
     def __init__(self):
         self.layers = []
-        self.loss = None
-        self.loss_prime = None
 
     def forward(self, x):
         for i in self.layers:
@@ -18,32 +16,27 @@ class NN(Layer):
         for i in reversed(self.layers):
             output_error = i.backward(output_error, learning_rate)
 
-    # set loss to use
-    def use_loss(self, loss, loss_prime):
-        self.loss = loss
-        self.loss_prime = loss_prime
-
     # train the network
-    def fit(self, x_train, y_train, epochs, learning_rate):
+    def fit(self, x_train, y_train, epochs, learning_rate, loss):
         # sample dimension first
-        samples = len(x_train)
+        num_batches = len(x_train)
 
         # training loop
         for i in tqdm(range(epochs), desc = "training: "):
-            for j in range(samples):
+            for j in range(num_batches):
                 # forward propagation
-                input = x_train[j]
+                batch = x_train[j]
 
-                output = self.forward(input)
+                pred = self.forward(batch)
 
                 # compute loss (for display purpose only)
-                err = self.loss(y_train[j], output)
+                err = loss(pred = pred, label = y_train[j])
 
                 # backward propagation
-                grad = self.loss_prime(y_train[j], output)  ### shape is (batch_size,1)
+                grad = loss.prime(pred = pred , label = y_train[j])  
                 for layer in reversed(self.layers):
                     grad = layer.backward(grad, learning_rate)
 
             # calculate average error on all samples
-            err /= samples
+            err /= num_batches
             # print('epoch %d/%d   error=%f' % (i+1, epochs, err))

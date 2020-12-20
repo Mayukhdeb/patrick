@@ -1,20 +1,21 @@
 import cupy as cp
-import patrick.layers as layers
-import patrick.activations as activations
-import patrick.losses as losses
-import patrick.nn as nn
 
-from sklearn import datasets
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
 import numpy as np
+from sklearn.datasets import load_digits
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.model_selection import train_test_split
+
+import patrick.nn as nn
+import patrick.layers as layers
+import patrick.losses as losses
+from patrick.activations import leaky_relu
 
 """
 train test split
 """
-iris = datasets.load_iris()
-x_train, y_train = cp.array(iris.data), cp.array(iris.target)
+data_bunch = load_digits()
+x_train, y_train = cp.array(data_bunch.data), cp.array(data_bunch.target)
 x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size = 0.1,shuffle = True)
 
 """
@@ -23,12 +24,14 @@ one hot encoding
 encoder = OneHotEncoder()
 y_train = cp.array(encoder.fit_transform(y_train.get().reshape(-1,1)).toarray())
 
+# print(x_train.shape, y_train.shape)
+
 """
 split into batches
 """
-batch_size = 3
-x_train = x_train.reshape(x_train.shape[0]//batch_size, batch_size, x_train.shape[1])
-y_train = y_train.reshape(y_train.shape[0]//batch_size, batch_size, 3)
+batch_size = 7
+x_train = x_train.reshape(x_train.shape[0]//batch_size, batch_size, x_train.shape[1]) /16.0
+y_train = y_train.reshape(y_train.shape[0]//batch_size, batch_size, 10)
 
 """
 model
@@ -36,26 +39,26 @@ model
 class model(nn.NN):
     def __init__(self):
         self.layers =  [
-                    layers.FCLayer(4,12),
-                    activations.leaky_relu(),
-                    layers.FCLayer(12, 10),
-                    activations.leaky_relu(),
-                    layers.FCLayer(10,3) ## could be one hot encoding, but for now this will do
+                    layers.FCLayer(64,150),
+                    leaky_relu(),
+                    layers.FCLayer(150, 100),
+                    leaky_relu(),
+                    layers.FCLayer(100, 52),
+                    leaky_relu(),
+                    layers.FCLayer(52,10)
                 ]
-        self.loss = losses.mse
-        self.loss_prime = losses.mse_prime
         
 net = model()
 
 """
 train
 """
-net.fit(x_train, y_train, epochs=100, learning_rate=0.001)
+net.fit(x_train, y_train, epochs=60, learning_rate=0.005, loss = losses.mse_loss)
 
 """
 test
 """
-out = net(x_test).get()
+out = net(x_test/16.0).get()
 out = np.array([np.argmax(i) for i in out]).astype(np.uint8)
 labels = y_test.get().flatten()
-print("Accuracy:", accuracy_score( labels, out))
+print("Accuracy:", accuracy_score( labels, out)) 

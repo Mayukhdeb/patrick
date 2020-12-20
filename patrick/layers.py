@@ -41,8 +41,8 @@ class ActivationLayer(Layer):
 class FCLayer(Layer):
 
     def __init__(self, input_size, output_size):
-        self.weights = cp.random.rand(input_size, output_size) - 0.5
-        self.bias = cp.random.rand(1, output_size) - 0.5
+        self.weights = cp.random.rand(input_size, output_size) -0.5
+        self.bias = cp.random.rand(1, output_size) -0.5
 
     # returns output for a given input
     def forward(self, input_data):
