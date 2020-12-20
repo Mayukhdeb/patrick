@@ -1,8 +1,8 @@
 import cupy as cp
-from losses import mse, mse_prime
-from activations import  leaky_relu
-from layers import FCLayer
-from nn import NN
+import patrick.layers as layers
+import patrick.activations as activations
+import patrick.losses as losses
+import patrick.nn as nn
 
 from sklearn import datasets
 from sklearn.metrics import accuracy_score
@@ -33,17 +33,17 @@ y_train = y_train.reshape(y_train.shape[0]//batch_size, batch_size, 3)
 """
 model
 """
-class model(NN):
+class model(nn.NN):
     def __init__(self):
         self.layers =  [
-                    FCLayer(4,12),
-                    leaky_relu(),
-                    FCLayer(12, 10),
-                    leaky_relu(),
-                    FCLayer(10,3) ## could be one hot encoding, but for now this will do
+                    layers.FCLayer(4,12),
+                    activations.leaky_relu(),
+                    layers.FCLayer(12, 10),
+                    activations.leaky_relu(),
+                    layers.FCLayer(10,3) ## could be one hot encoding, but for now this will do
                 ]
-        self.loss = mse
-        self.loss_prime = mse_prime
+        self.loss = losses.mse
+        self.loss_prime = losses.mse_prime
         
 net = model()
 

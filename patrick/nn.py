@@ -1,6 +1,6 @@
 
 import cupy as cp
-from layers import Layer
+from .layers import Layer
 from tqdm import tqdm
 
 class NN(Layer):
