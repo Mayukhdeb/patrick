@@ -40,3 +40,9 @@ class NN(Layer):
             # calculate average error on all samples
             # err /= num_batches
             # print('epoch %d/%d   error=%f' % (i+1, epochs, err))
+
+    def __str__(self):
+        s = ""
+        for layer in self.layers:
+            s += "\n" + layer.__class__.__name__ 
+        return s
