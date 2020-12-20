@@ -32,3 +32,12 @@ def __sigmoid__(x):
 def __sigmoid_prime__(x):
     x =  (1/(1 + cp.exp(-x)))*(1- 1/(1 + cp.exp(-x)))
     return x
+
+def __mse__(pred, label):
+ 
+    loss = cp.mean(cp.power(pred-label, 2))
+
+    return loss
+
+def __mse_prime__(pred,label):
+    return  2*(pred-label)/label.size

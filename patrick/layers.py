@@ -5,11 +5,9 @@ class Layer:
         self.input = None
         self.output = None
 
-    # computes the output Y of a layer for a given input X
     def forward(self, input):
         raise NotImplementedError
 
-    # computes dE/dX for a given dE/dY (and update parameters if any)
     def backward(self, output_error, learning_rate):
         raise NotImplementedError
 
@@ -29,7 +27,7 @@ class ActivationLayer(Layer):
         return self.output
 
     # Returns input_error=dE/dX for a given output_error=dE/dY.
-    # learning_rate is not used because there is no "learnable" parameters.
+    # learning_rate is not used because there are no "learnable" parameters.
     def backward(self, output_error, learning_rate):
         # print(output_error.shape)
         return self.activation_prime(self.input) * output_error
@@ -74,3 +72,18 @@ class FCLayer(Layer):
 
     def __call__(self, input):
         return self.forward(input)
+
+
+class LossLayer(Layer):
+    def __init__(self, loss_func, loss_func_prime):
+        self.loss_func = loss_func
+        self.loss_func_prime = loss_func_prime
+
+    def forward(self, pred,label):
+        return self.loss_func(pred,label)
+
+    def prime(self, pred, label):
+        return self.loss_func_prime(pred, label)
+
+    def __call__(self, pred, label):
+        return self.forward(pred, label)

@@ -38,5 +38,5 @@ class NN(Layer):
                     grad = layer.backward(grad, learning_rate)
 
             # calculate average error on all samples
-            err /= num_batches
+            # err /= num_batches
             # print('epoch %d/%d   error=%f' % (i+1, epochs, err))
