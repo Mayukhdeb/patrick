@@ -6,11 +6,11 @@ class Layer:
         self.output = None
 
     # computes the output Y of a layer for a given input X
-    def forward_propagation(self, input):
+    def forward(self, input):
         raise NotImplementedError
 
     # computes dE/dX for a given dE/dY (and update parameters if any)
-    def backward_propagation(self, output_error, learning_rate):
+    def backward(self, output_error, learning_rate):
         raise NotImplementedError
 
     def __call__(self, input):
@@ -23,15 +23,19 @@ class ActivationLayer(Layer):
         self.activation_prime = activation_prime
 
     # returns the activated input
-    def forward_propagation(self, input_data):
+    def forward(self, input_data):
         self.input = input_data
         self.output = self.activation(self.input)
         return self.output
 
     # Returns input_error=dE/dX for a given output_error=dE/dY.
     # learning_rate is not used because there is no "learnable" parameters.
-    def backward_propagation(self, output_error, learning_rate):
+    def backward(self, output_error, learning_rate):
+        # print(output_error.shape)
         return self.activation_prime(self.input) * output_error
+
+    def __call__(self, input):
+        return self.forward(input)
 
         
 class FCLayer(Layer):
@@ -41,18 +45,32 @@ class FCLayer(Layer):
         self.bias = cp.random.rand(1, output_size) - 0.5
 
     # returns output for a given input
-    def forward_propagation(self, input_data):
+    def forward(self, input_data):
         self.input = input_data
         self.output = cp.dot(self.input, self.weights) + self.bias
         return self.output
 
-    # computes dE/dW, dE/dB for a given output_error=dE/dY. Returns input_error=dE/dX.
-    def backward_propagation(self, output_error, learning_rate):
-        input_error = cp.dot(output_error, self.weights.T)
-        weights_error = cp.dot(self.input.T, output_error)
-        # dBias = output_error
+    def backward(self, output_grad, learning_rate):
 
-        # update parameters
-        self.weights -= learning_rate * weights_error
-        self.bias -= learning_rate * output_error
-        return input_error
+        """
+        Z = W(x) + B
+        """
+
+        # print("dloss", output_grad.T.shape, self.input.shape)
+
+        weights_grad = cp.dot( output_grad.T,  self.input )
+        biases_grad = cp.mean(output_grad , axis = 0)
+        input_grad = cp.dot(output_grad, self.weights.T)
+
+        # print("bb", biases_grad.shape)
+
+        # print("weights grad shape:", weights_grad.shape)
+        # print("adder shape:", (learning_rate*weights_grad.T).shape, "weigts shape", self.weights.shape)
+
+        self.weights -=  (learning_rate*weights_grad.T)
+        self.bias -= learning_rate*biases_grad
+        
+        return input_grad
+
+    def __call__(self, input):
+        return self.forward(input)
